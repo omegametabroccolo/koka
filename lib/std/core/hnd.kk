@@ -373,6 +373,9 @@ extern resume-final() : a
   c  inline "kk_fatal_resume_final(kk_context())"
   js "_throw_resume_final"
 
+extern obj-magic(x: a): b
+  inline "#1"
+
 fun prompt( w0 : evv<e0>,  w1 : evv<e0>, ev : ev<h>, m : marker<e0,r>, ret: a -> e0 r, result : a ) : e0 r
   guard(w1)
   evv-set(w0)  // restore the previous evidence vector
@@ -401,7 +404,7 @@ fun prompt( w0 : evv<e0>,  w1 : evv<e0>, ev : ev<h>, m : marker<e0,r>, ret: a ->
             evv-set(w1')
             prompt(w0',w1',ev,pretend-decreasing(m),ret,cont({x}))
           Shallow(x) ->
-            yield-bind( cont({x}), fn(y) ret(y) )
+            cont({x}).obj-magic
           Finalize(x) ->
             val w0' = evv-get()  // if not using scoped resumptions, w0' may be different from w0
             val w1' = if evv-eq(w0,w0') then w1 else evv-insert(w0',ev)
