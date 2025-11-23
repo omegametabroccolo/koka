@@ -15,13 +15,17 @@ import std/core/undiv
 // A function that parses some input into a result `a`.
 pub alias parser<e,a> = () -> <parse|e> a
 
+type parse-length
+  Exactly( n: int )
+  AtLeast( n: int )
+
 // Management of the branching alternatives for parsing an input string.
 pub effect parse
   // Advance the input if and only if it currently satisfies `pred`.
   // Further parsers continue with the slice it returns.
   // 
   // See also `satisfy-fail` which invokes `fail` when `pred` returns `Nothing`.
-  fun satisfy( pred : sslice -> total maybe<(a,sslice)> ) : maybe<a>
+  fun satisfy( pred : sslice -> total maybe<(a,sslice)>, len : parse-length = AtLeast(0) ) : maybe<a>
   // Fails the current branch of parsing.
   final ctl fail(msg : string) : a
   // Pick allows the user to try different parses.
@@ -60,7 +64,7 @@ pub fun parse-eof( input : sslice, p : () -> <parse|e> a) : e parse-error<a>
 //   short-circuiting if the `True` branch succeeds.
 // If both alternatives of a `pick` invoke `fail`, 
 //   the first error will be returned.
-pub fun parse( input0 : sslice, p : () -> <parse|e> a ) : e parse-error<a>
+pub fun parse( input0 : sslice, p : () -> <parse|e> a, get-next : () -> e maybe<string> = { Nothing } ) : e parse-error<a>
   var input := input0
   handle p
     return(x)
@@ -72,12 +76,27 @@ pub fun parse( input0 : sslice, p : () -> <parse|e> a ) : e parse-error<a>
     final ctl fail(msg)
       ParseError(msg,input)
 
-    fun satisfy(pred)
-      val inp = input
-      val m   = fn() : total _ { pred(inp) }
-      match m()
-        Just((x,cap)) -> { input := cap; Just(x) }
-        Nothing       -> Nothing
+    fun satisfy(pred, pl : parse-length)
+      fun go(input1: string)
+        match (pred(input1.slice), pl)
+          // The pattern is longer than the input, try to get more
+          (Nothing, Exactly(n)) | n > input1.count ->
+            match mask<local>{ get-next() }
+              Nothing    -> Nothing
+              Just(next) -> go(pretend-decreasing(input1 ++ next))
+          (Nothing, AtLeast(n)) | n > input1.count ->
+            match mask<local>{ get-next() }
+              Nothing    -> Nothing
+              Just(next) -> go(pretend-decreasing(input1 ++ next))
+          // We already matched something, but there may be more
+          (Just((x, cap)), AtLeast(_)) | cap.count == 0 ->
+            match mask<local>{ get-next() }
+              Nothing    -> { input := cap; Just(x) }
+              Just(next) -> go(pretend-decreasing(input1 ++ next))
+          // Nothing more to parse
+          (Nothing, _)        -> Nothing
+          (Just((x, cap)), _) -> { input := cap; Just(x) }
+      go(input.string)
 
     ctl pick()
       val save = input;
@@ -102,21 +121,22 @@ pub fun choose( ps : list<parser<e,a>> ) : <parse|e> a
     Cons(p,Nil) -> p()
     Cons(p,pp)  -> if pick() then p() else choose(pp)
 
-pub fun satisfy-fail( msg : string, pred : sslice -> maybe<(a,sslice)> ) : parse a
-  match satisfy(pred)
+pub fun satisfy-fail( msg : string, pred : sslice -> maybe<(a,sslice)>, pl : parse-length = AtLeast(0) ) : parse a
+  match satisfy(pred, pl)
     Nothing -> fail(msg)
     Just(x) -> x
 
 pub fun eof() : parse ()
-  match satisfy( fn(s) if s.is-empty then Just(((),s)) else Nothing )
+  match satisfy( fn(s) if s.is-empty then Just(((),s)) else Nothing, Exactly(0) )
     Nothing -> fail("expecting end-of-input")
     Just    -> ()
 
 pub fun char-is( msg :string, pred : char -> bool ) : parse char
-  satisfy-fail(msg) fn(slice)
+  fun go(slice)
     match slice.next
       Just((c,rest)) | pred(c) -> Just((c,rest))
       _ -> Nothing
+  satisfy-fail(msg, go, Exactly(1))
 
 
 fun next-while0( slice : sslice, pred : char -> bool, acc : list<char> ) : (list<char>,sslice)
@@ -126,10 +146,11 @@ fun next-while0( slice : sslice, pred : char -> bool, acc : list<char> ) : (list
 
 
 pub fun chars-are( msg :string, pred : char -> bool ) : parse list<char>
-  satisfy-fail(msg) fn(slice)
+  fun go(slice)
     match slice.next-while0(pred,[])
       ([],_)    -> Nothing
       (xs,rest) -> Just((xs,rest))
+  satisfy-fail(msg, go, AtLeast(1))
 
 fun next-match( slice : sslice, cs : list<char> ) : maybe<sslice>
   match cs
@@ -139,10 +160,11 @@ fun next-match( slice : sslice, cs : list<char> ) : maybe<sslice>
       _ -> Nothing
 
 pub fun pstring( s : string ) : parse string
-  satisfy-fail(s) fn(slice)
+  fun go(slice)
     match slice.next-match(s.list)
       Just(rest) -> Just((s,rest))
       Nothing    -> Nothing
+  satisfy-fail(s, go, Exactly(s.count))
 
 pub fun char( c : char ) : parse char
   char-is( show(c), fn(c0) c == c0  )
