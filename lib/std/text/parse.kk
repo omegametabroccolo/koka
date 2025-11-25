@@ -93,7 +93,7 @@ pub fun parse( input0 : sslice, p : () -> <parse|e> a, get-next : () -> e maybe<
             Just(next) ->
               input-buf := input-buf ++ next
               input := input-buf.slice.advance(input.before.count)
-              go(().pretend-decreasing)
+              go(pretend-decreasing(()))
           (Nothing, _) -> Nothing
           (Just((x,cap)), _) -> { input := cap; Just(x) }
       go(())
