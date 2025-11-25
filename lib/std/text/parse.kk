@@ -64,7 +64,7 @@ pub fun parse-eof( input : sslice, p : () -> <parse|e> a) : e parse-error<a>
 //   short-circuiting if the `True` branch succeeds.
 // If both alternatives of a `pick` invoke `fail`, 
 //   the first error will be returned.
-pub fun parse( input0 : sslice, p : () -> <parse|e> a, get-next : () -> e maybe<string> = { Nothing } ) : e parse-error<a>
+pub fun parse( input0 : sslice, p : () -> <parse|e> a, get-next : () -> <div|e> maybe<string> = { Nothing } ) : e parse-error<a>
   var input-buf := input0.string
   var input := input-buf.slice
 
@@ -79,7 +79,7 @@ pub fun parse( input0 : sslice, p : () -> <parse|e> a, get-next : () -> e maybe<
       ParseError(msg,input)
 
     fun satisfy(pred, pl : parse-length)
-      fun go(())
+      fun go()
         val input-count = input.count
         match (pred(input), pl)
           (_, pl) | pl.n > input-count -> match get-next()
@@ -87,16 +87,17 @@ pub fun parse( input0 : sslice, p : () -> <parse|e> a, get-next : () -> e maybe<
             Just(next) ->
               input-buf := input-buf ++ next
               input := input-buf.slice.advance(input.before.count)
-              go(pretend-decreasing(()))
+              go()
           (Just((x,cap)), AtLeast(_)) | cap.count == 0 -> match get-next()
             Nothing -> { input := cap; Just(x) }
             Just(next) ->
               input-buf := input-buf ++ next
               input := input-buf.slice.advance(input.before.count)
-              go(pretend-decreasing(()))
+              go()
           (Nothing, _) -> Nothing
           (Just((x,cap)), _) -> { input := cap; Just(x) }
-      go(())
+      pretend-no-div
+        go()
 
     ctl pick()
       val save = input;
