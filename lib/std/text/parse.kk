@@ -65,7 +65,9 @@ pub fun parse-eof( input : sslice, p : () -> <parse|e> a) : e parse-error<a>
 // If both alternatives of a `pick` invoke `fail`, 
 //   the first error will be returned.
 pub fun parse( input0 : sslice, p : () -> <parse|e> a, get-next : () -> e maybe<string> = { Nothing } ) : e parse-error<a>
-  var input := input0
+  var input-buf := input0.string
+  var input := input-buf.slice
+
   handle p
     return(x)
       ParseOk(x,input)
@@ -77,33 +79,31 @@ pub fun parse( input0 : sslice, p : () -> <parse|e> a, get-next : () -> e maybe<
       ParseError(msg,input)
 
     fun satisfy(pred, pl : parse-length)
-      fun go(input1: string)
-        match (pred(input1.slice), pl)
-          // The pattern is longer than the input, try to get more
-          (Nothing, Exactly(n)) | n > input1.count ->
-            match mask<local>{ get-next() }
-              Nothing    -> Nothing
-              Just(next) -> go(pretend-decreasing(input1 ++ next))
-          (Nothing, AtLeast(n)) | n > input1.count ->
-            match mask<local>{ get-next() }
-              Nothing    -> Nothing
-              Just(next) -> go(pretend-decreasing(input1 ++ next))
-          // We already matched something, but there may be more
-          (Just((x, cap)), AtLeast(_)) | cap.count == 0 ->
-            match mask<local>{ get-next() }
-              Nothing    -> { input := cap; Just(x) }
-              Just(next) -> go(pretend-decreasing(input1 ++ next))
-          // Nothing more to parse
-          (Nothing, _)        -> Nothing
-          (Just((x, cap)), _) -> { input := cap; Just(x) }
-      go(input.string)
+      fun go(())
+        val input-count = input.count
+        match (pred(input), pl)
+          (_, pl) | pl.n > input-count -> match get-next()
+            Nothing -> Nothing
+            Just(next) ->
+              input-buf := input-buf ++ next
+              input := input-buf.slice.advance(input.before.count)
+              go(pretend-decreasing(()))
+          (Just((x,cap)), AtLeast(_)) | cap.count == 0 -> match get-next()
+            Nothing -> { input := cap; Just(x) }
+            Just(next) ->
+              input-buf := input-buf ++ next
+              input := input-buf.slice.advance(input.before.count)
+              go(().pretend-decreasing)
+          (Nothing, _) -> Nothing
+          (Just((x,cap)), _) -> { input := cap; Just(x) }
+      go(())
 
     ctl pick()
       val save = input;
       match resume(True)
         ParseOk(x1,rest1) -> ParseOk(x1,rest1)
         err1 ->
-          input := save
+          input := input-buf.slice.advance(save.before.count)
           match resume(False)   // todo: limit lookahead?
             ParseOk(x2,rest2) -> ParseOk(x2,rest2)
             _err2 -> err1  // todo: merge or pick closest?
