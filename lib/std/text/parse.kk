@@ -82,18 +82,21 @@ pub fun parse( input0 : sslice, p : () -> <parse|e> a, get-next : () -> <div|e> 
       fun go()
         val input-count = input.count
         match (pred(input), pl)
+          // Input is too short, try to get more
           (_, pl) | pl.n > input-count -> match get-next()
             Nothing -> Nothing
             Just(next) ->
               input-buf := input-buf ++ next
               input := input-buf.slice.advance(input.before.count)
               go()
+          // We parsed something but there may be more
           (Just((x,cap)), AtLeast(_)) | cap.count == 0 -> match get-next()
             Nothing -> { input := cap; Just(x) }
             Just(next) ->
               input-buf := input-buf ++ next
               input := input-buf.slice.advance(input.before.count)
               go()
+          // We're done parsing
           (Nothing, _) -> Nothing
           (Just((x,cap)), _) -> { input := cap; Just(x) }
       pretend-no-div
