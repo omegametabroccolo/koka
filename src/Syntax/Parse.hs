@@ -2528,11 +2528,7 @@ tlabel
   = do
        pos <- getPosition
        tp1 <- tid
-       case tp1 of
-          TpVar name rng -> do
-            setPosition pos
-            fail $ "encountered effect variable " ++ show name ++ " when an effect label was expected\n  hint: effect variables must be after `|` (e.g `<labels|e>`), or by themselves (e.g. `e`)"
-          _              -> typeApp tp1
+       typeApp tp1
 
 
 tresultTotal :: LexParser (UserType,UserType)
