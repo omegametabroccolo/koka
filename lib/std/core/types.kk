@@ -324,6 +324,8 @@ pub extern (++)(x : string, y : string) : string
 pub noinline extern @open<e1::E,e2::E,a,b>( x : a ) : e2 b
   inline "#1"
 
+pub type row-has<r::E,p::X>
+  con @RowHas         // : row-has<<p|r>,p>
 
 // ----------------------------------------------------------------------------
 // References

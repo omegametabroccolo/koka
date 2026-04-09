@@ -177,6 +177,7 @@ module Common.NamePrim
           , nameAnd, nameOr
 
           , nameTypeHeapDiv, nameEvHeapDiv, nameEvHeapNoDiv, nameHeapDiv
+          , nameTypeRowHas, nameEvRowHas, nameRowHas
 
           -- * Kind constructors
           , nameKindStar, nameKindFun
@@ -409,6 +410,10 @@ nameTypeHeapDiv = coreTypesName "hdiv"
 nameEvHeapDiv   = coreTypesName "@Hdiv"
 nameEvHeapNoDiv   = coreTypesName "@Hnodiv"
 nameHeapDiv     = newName "hdiv"
+
+nameTypeRowHas = coreTypesName "row-has"
+nameEvRowHas = coreTypesName "@RowHas"
+nameRowHas = newName "row-has"
 
 nameTpRef       = coreTypesName "ref"
 nameTpLocalVar  = coreTypesName "local-var"

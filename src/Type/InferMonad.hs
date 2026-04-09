@@ -108,6 +108,7 @@ import Common.File(endsWith,normalizeWith, seqqList)
 import Common.Name
 import Common.NamePrim(nameTpVoid,nameTpPure,nameTpIO,nameTpST,nameTpAsyncX,
                        nameTpRead,nameTpWrite,nameTypeHeapDiv,nameHeapDiv,nameEvHeapDiv,nameEvHeapNoDiv,
+                       nameTypeRowHas,nameEvRowHas,nameRowHas,
                        nameReturn,nameTpLocal, nameCopy)
 
 import qualified Common.NameMap as NM
@@ -1628,7 +1629,7 @@ ppConstraint penv ic
 
 implicitConstraints :: [(Name,Name -> Type -> Maybe (Tvs -> ImplicitConstraint -> Inf Bool, Tvs -> ImplicitConstraint -> Inf (Core.Expr, Type)))]
 implicitConstraints
-  = [(nameHeapDiv, checkHeapDivConstraint)]
+  = [(nameHeapDiv, checkHeapDivConstraint), (nameRowHas, checkRowHasConstraint)]
 
 checkImplicitConstraint :: Name -> Type -> Range -> Range -> Inf (Maybe TypedArg)
 checkImplicitConstraint name tp rangeContext range
@@ -1790,7 +1791,38 @@ resolveHeapDivConstraint free ic
                   let ev = Core.TypeApp (coreExprFromNameInfo cname cinfo) [tpHeap,tpVal,seff]
                   return (ev,stp)
 
+{--------------------------------------------------------------------------
+  row-has constraint
+--------------------------------------------------------------------------}
 
+checkRowHasConstraint :: Name -> Type -> Maybe (Tvs -> ImplicitConstraint -> Inf Bool, Tvs -> ImplicitConstraint -> Inf (Core.Expr, Type))
+checkRowHasConstraint name tp
+  = case expandSyn tp of
+      TApp (TCon tcon) [tpRow,tpMem]  | typeConName tcon == nameTypeRowHas
+        -> Just (canResolveRowHasConstraint,resolveRowHasConstraint)
+      _ -> Nothing
+
+canResolveRowHasConstraint :: Tvs -> ImplicitConstraint -> Inf Bool
+canResolveRowHasConstraint free ic
+  = return True
+
+resolveRowHasConstraint :: Tvs -> ImplicitConstraint -> Inf (Core.Expr, Type)
+resolveRowHasConstraint free ic
+  = do tp <- implicitConstraintType ic
+       case expandSyn tp of
+         TApp (TCon tcon) [tpRow,tpMem]
+           -> do
+                 tv <- Op.freshEffect
+                 let memRow = effectExtend tpMem tv
+                 inferUnify (Infer (icContext ic)) (icRange ic) memRow tpRow
+
+                 (cname,ctype,cinfo) <- resolveNameEx isInfoCon Nothing nameEvRowHas CtxNone (icContext ic) (icRange ic)
+
+                 srow <- subst tpRow
+                 stp <- subst tp
+
+                 let ev = Core.TypeApp (coreExprFromNameInfo cname cinfo) [srow,tpMem]
+                 return (ev,stp)
 
 {--------------------------------------------------------------------------
   Inference monad
