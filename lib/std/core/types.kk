@@ -189,6 +189,12 @@ pub struct tuple4<a,b,c,d>(fst:a,snd:b,thd:c,field4:d)
 // A quintuple of values. Usually written as `(a,b,c,d,e)` (for types and terms)
 pub struct tuple5<a,b,c,d,e>(fst:a,snd:b,thd:c,field4:d,field5:e)
 
+pub struct tuple6<a,b,c,d,e,f>(fst:a,snd:b,thd:c,field4:d,field5:e,field6:f)
+pub struct tuple7<a,b,c,d,e,f,g>(fst:a,snd:b,thd:c,field4:d,field5:e,field6:f,field7:g)
+pub struct tuple8<a,b,c,d,e,f,g,h>(fst:a,snd:b,thd:c,field4:d,field5:e,field6:f,field7:g,field8:h)
+pub struct tuple9<a,b,c,d,e,f,g,h,i>(fst:a,snd:b,thd:c,field4:d,field5:e,field6:f,field7:g,field8:h,field9:i)
+pub struct tuple10<a,b,c,d,e,f,g,h,i,j>(fst:a,snd:b,thd:c,field4:d,field5:e,field6:f,field7:g,field8:h,field9:i,field10:j)
+
 // The `:maybe` type is used to represent either a value (`Just(x)`) or `Nothing`.
 // This type is often used to represent values that can be _null_.
 // See also `module std/core/maybe`.
@@ -324,6 +330,14 @@ pub extern (++)(x : string, y : string) : string
 pub noinline extern @open<e1::E,e2::E,a,b>( x : a ) : e2 b
   inline "#1"
 
+pub type rext1<r::E,r0::E,x1::X>
+  con @Rext1        // : rext1<<x1|r0>,r0,x1>
+
+pub type rext2<r::E,r0::E,x1::X,x2::X>
+  con @Rext2        // : rext2<<x1,x2|r0>,r0,x1,x2>
+
+pub type rext3<r::E,r0::E,x1::X,x2::X,x3::X>
+  con @Rext3        // : rext3<<x1,x2,x3|r0>,r0,x1,x2,x3>
 
 // ----------------------------------------------------------------------------
 // References

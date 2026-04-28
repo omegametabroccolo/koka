@@ -177,6 +177,7 @@ module Common.NamePrim
           , nameAnd, nameOr
 
           , nameTypeHeapDiv, nameEvHeapDiv, nameEvHeapNoDiv, nameHeapDiv
+          , nameTypeRowExt, nameEvRowExt, nameRowExt
 
           -- * Kind constructors
           , nameKindStar, nameKindFun
@@ -409,6 +410,13 @@ nameTypeHeapDiv = coreTypesName "hdiv"
 nameEvHeapDiv   = coreTypesName "@Hdiv"
 nameEvHeapNoDiv   = coreTypesName "@Hnodiv"
 nameHeapDiv     = newName "hdiv"
+
+nameTypeRowExt :: Int -> Name
+nameTypeRowExt n = coreTypesName $ "rext" ++ show n
+nameEvRowExt :: Int -> Name
+nameEvRowExt n = coreTypesName $ "@Rext" ++ show n
+nameRowExt :: Int -> Name
+nameRowExt n = newName $ "rext" ++ show n
 
 nameTpRef       = coreTypesName "ref"
 nameTpLocalVar  = coreTypesName "local-var"

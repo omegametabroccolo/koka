@@ -603,6 +603,8 @@ labelNameEx tp
         -> (typeConName tc, idNumber id, targs)
       TApp (TCon tc) targs  -> assertion ("non-expanded type synonym used as label") (typeConName tc /= nameEffectExtend) $
                                (typeConName tc,0,targs)
+      TVar (TypeVar id _ _)
+        -> (newName $ ("labeltvar_" ++) $ show $ idNumber id, idNumber id, [])
       _  -> failure "Type.Type.labelNameEx: label is not a constant"
 
 typePartial :: Type

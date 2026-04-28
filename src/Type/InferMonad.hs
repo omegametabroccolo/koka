@@ -108,6 +108,7 @@ import Common.File(endsWith,normalizeWith, seqqList)
 import Common.Name
 import Common.NamePrim(nameTpVoid,nameTpPure,nameTpIO,nameTpST,nameTpAsyncX,
                        nameTpRead,nameTpWrite,nameTypeHeapDiv,nameHeapDiv,nameEvHeapDiv,nameEvHeapNoDiv,
+                       nameTypeRowExt,nameRowExt,nameEvRowExt,
                        nameReturn,nameTpLocal, nameCopy)
 
 import qualified Common.NameMap as NM
@@ -1628,7 +1629,7 @@ ppConstraint penv ic
 
 implicitConstraints :: [(Name,Name -> Type -> Maybe (Tvs -> ImplicitConstraint -> Inf Bool, Tvs -> ImplicitConstraint -> Inf (Core.Expr, Type)))]
 implicitConstraints
-  = [(nameHeapDiv, checkHeapDivConstraint)]
+  = [(nameHeapDiv, checkHeapDivConstraint)] ++ map (\n -> (nameRowExt n, checkRowExtConstraint)) [1,2,3]
 
 checkImplicitConstraint :: Name -> Type -> Range -> Range -> Inf (Maybe TypedArg)
 checkImplicitConstraint name tp rangeContext range
@@ -1789,6 +1790,36 @@ resolveHeapDivConstraint free ic
                   --                         <-> text "  , free: " <+> ppTvs penv free
                   let ev = Core.TypeApp (coreExprFromNameInfo cname cinfo) [tpHeap,tpVal,seff]
                   return (ev,stp)
+
+
+
+{--------------------------------------------------------------------------
+  row extension constraints
+--------------------------------------------------------------------------}
+
+checkRowExtConstraint :: Name -> Type -> Maybe (Tvs -> ImplicitConstraint -> Inf Bool, Tvs -> ImplicitConstraint -> Inf (Core.Expr, Type))
+checkRowExtConstraint name tp
+  = case expandSyn tp of
+      TApp (TCon tcon) (tpRow:tpBase:tpWith)  | any (== typeConName tcon) (map nameTypeRowExt [1,2,3])
+        -> Just (canResolveRowExtConstraint,resolveRowExtConstraint)
+      _ -> Nothing
+
+canResolveRowExtConstraint :: Tvs -> ImplicitConstraint -> Inf Bool
+canResolveRowExtConstraint free ic
+  = return True
+
+resolveRowExtConstraint :: Tvs -> ImplicitConstraint -> Inf (Core.Expr, Type)
+resolveRowExtConstraint free ic
+  = do tp  <- implicitConstraintType ic
+       case expandSyn tp of
+            TApp (TCon tcon) (tpRow:tpBase:tpWith)
+              -> do inferUnify (Infer (icContext ic)) (icRange ic) tpRow (effectExtends tpWith tpBase)
+                    (cname,ctype,cinfo) <- resolveNameEx isInfoCon Nothing (nameEvRowExt $ length tpWith) CtxNone (icContext ic) (icRange ic)
+                    srow <- subst tpRow
+                    stp <- subst tp
+
+                    let ev = Core.TypeApp (coreExprFromNameInfo cname cinfo) (srow:tpBase:tpWith)
+                    return (ev,stp)
 
 
 

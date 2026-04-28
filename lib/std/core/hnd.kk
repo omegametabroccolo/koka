@@ -805,6 +805,121 @@ fun under4( ev : ev<h>, op : (a1,a2,a3,a4) -> e b, x1 : a1, x2 : a2, x3 : a3, x4
   z
 
 
+pub fun clause-control5( op : (x1:a1, x2:a2, x3:a3, x4:a4, x5:a5, k: b -> e r) -> e r ) : clause1<(a1,a2,a3,a4,a5),b,h,e,r>
+  clause-control1( fn((x1,x2,x3,x4,x5),k){ op(x1,x2,x3,x4,x5,k) } )
+
+pub fun clause-tail5<e,r,h,a1,a2,a3,a4,a5,b>(op : (a1,a2,a3,a4,a5) -> e b) : clause1<(a1,a2,a3,a4,a5),b,h,e,r>
+  clause-tail1( fn((x1,x2,x3,x4,x5)){ op(x1,x2,x3,x4,x5) } )
+
+pub fun clause-tail-noop5<e,r,h,a1,a2,a3,a4,a5,b>(op : (a1,a2,a3,a4,a5) -> e b) : clause1<(a1,a2,a3,a4,a5),b,h,e,r>
+  clause-tail-noop1( fn((x1,x2,x3,x4,x5)){ op(x1,x2,x3,x4,x5) } )
+
+pub fun clause-never5( op : (a1,a2,a3,a4,a5) -> e r ) : clause1<(a1,a2,a3,a4,a5),b,h,e,r>
+  clause-never1(fn((x1,x2,x3,x4,x5)){ op(x1,x2,x3,x4,x5) } )
+
+pub fun @perform5( ev : ev<h>, op : (forall<e1,r> h<e1,r> -> clause1<(a1,a2,a3,a4,a5),b,h,e1,r>), x1 : a1, x2 : a2, x3 : a3, x4 : a4, x5 : a5 ) : e b
+  xperform1(ev,op,(x1,x2,x3,x4,x5))
+
+fun under5( ev : ev<h>, op : (a1,a2,a3,a4,a5) -> e b, x1 : a1, x2 : a2, x3 : a3, x4 : a4, x5 : a5 ) : e b
+  val w0 = evv-swap-with(ev)
+  val z = op(x1,x2,x3,x4,x5)
+  evv-set(w0)
+  if yielding() return yield-cont( fn(cont,res) under1(ev,cont,res) )
+  z
+
+
+pub fun clause-control6( op : (x1:a1, x2:a2, x3:a3, x4:a4, x5:a5, x6:a6, k: b -> e r) -> e r ) : clause1<(a1,a2,a3,a4,a5,a6),b,h,e,r>
+  clause-control1( fn((x1,x2,x3,x4,x5,x6),k){ op(x1,x2,x3,x4,x5,x6,k) } )
+
+pub fun clause-tail6<e,r,h,a1,a2,a3,a4,a5,a6,b>(op : (a1,a2,a3,a4,a5,a6) -> e b) : clause1<(a1,a2,a3,a4,a5,a6),b,h,e,r>
+  clause-tail1( fn((x1,x2,x3,x4,x5,x6)){ op(x1,x2,x3,x4,x5,x6) } )
+
+pub fun clause-tail-noop6<e,r,h,a1,a2,a3,a4,a5,a6,b>(op : (a1,a2,a3,a4,a5,a6) -> e b) : clause1<(a1,a2,a3,a4,a5,a6),b,h,e,r>
+  clause-tail-noop1( fn((x1,x2,x3,x4,x5,x6)){ op(x1,x2,x3,x4,x5,x6) } )
+
+pub fun clause-never6( op : (a1,a2,a3,a4,a5,a6) -> e r ) : clause1<(a1,a2,a3,a4,a5,a6),b,h,e,r>
+  clause-never1(fn((x1,x2,x3,x4,x5,x6)){ op(x1,x2,x3,x4,x5,x6) } )
+
+pub fun @perform6( ev : ev<h>, op : (forall<e1,r> h<e1,r> -> clause1<(a1,a2,a3,a4,a5,a6),b,h,e1,r>), x1 : a1, x2 : a2, x3 : a3, x4 : a4, x5 : a5, x6 : a6 ) : e b
+  xperform1(ev,op,(x1,x2,x3,x4,x5,x6))
+
+fun under6( ev : ev<h>, op : (a1,a2,a3,a4,a5,a6) -> e b, x1 : a1, x2 : a2, x3 : a3, x4 : a4, x5 : a5, x6 : a6 ) : e b
+  val w0 = evv-swap-with(ev)
+  val z = op(x1,x2,x3,x4,x5,x6)
+  evv-set(w0)
+  if yielding() return yield-cont( fn(cont,res) under1(ev,cont,res) )
+  z
+
+
+pub fun clause-control7( op : (x1:a1, x2:a2, x3:a3, x4:a4, x5:a5, x6:a6, x7:a7, k: b -> e r) -> e r ) : clause1<(a1,a2,a3,a4,a5,a6,a7),b,h,e,r>
+  clause-control1( fn((x1,x2,x3,x4,x5,x6,x7),k){ op(x1,x2,x3,x4,x5,x6,x7,k) } )
+
+pub fun clause-tail7<e,r,h,a1,a2,a3,a4,a5,a6,a7,b>(op : (a1,a2,a3,a4,a5,a6,a7) -> e b) : clause1<(a1,a2,a3,a4,a5,a6,a7),b,h,e,r>
+  clause-tail1( fn((x1,x2,x3,x4,x5,x6,x7)){ op(x1,x2,x3,x4,x5,x6,x7) } )
+
+pub fun clause-tail-noop7<e,r,h,a1,a2,a3,a4,a5,a6,a7,b>(op : (a1,a2,a3,a4,a5,a6,a7) -> e b) : clause1<(a1,a2,a3,a4,a5,a6,a7),b,h,e,r>
+  clause-tail-noop1( fn((x1,x2,x3,x4,x5,x6,x7)){ op(x1,x2,x3,x4,x5,x6,x7) } )
+
+pub fun clause-never7( op : (a1,a2,a3,a4,a5,a6,a7) -> e r ) : clause1<(a1,a2,a3,a4,a5,a6,a7),b,h,e,r>
+  clause-never1(fn((x1,x2,x3,x4,x5,x6,x7)){ op(x1,x2,x3,x4,x5,x6,x7) } )
+
+pub fun @perform7( ev : ev<h>, op : (forall<e1,r> h<e1,r> -> clause1<(a1,a2,a3,a4,a5,a6,a7),b,h,e1,r>), x1 : a1, x2 : a2, x3 : a3, x4 : a4, x5 : a5, x6 : a6, x7 : a7 ) : e b
+  xperform1(ev,op,(x1,x2,x3,x4,x5,x6,x7))
+
+fun under7( ev : ev<h>, op : (a1,a2,a3,a4,a5,a6,a7) -> e b, x1 : a1, x2 : a2, x3 : a3, x4 : a4, x5 : a5, x6 : a6, x7 : a7 ) : e b
+  val w0 = evv-swap-with(ev)
+  val z = op(x1,x2,x3,x4,x5,x6,x7)
+  evv-set(w0)
+  if yielding() return yield-cont( fn(cont,res) under1(ev,cont,res) )
+  z
+
+
+pub fun clause-control8( op : (x1:a1, x2:a2, x3:a3, x4:a4, x5:a5, x6:a6, x7:a7, x8:a8, k: b -> e r) -> e r ) : clause1<(a1,a2,a3,a4,a5,a6,a7,a8),b,h,e,r>
+  clause-control1( fn((x1,x2,x3,x4,x5,x6,x7,x8),k){ op(x1,x2,x3,x4,x5,x6,x7,x8,k) } )
+
+pub fun clause-tail8<e,r,h,a1,a2,a3,a4,a5,a6,a7,a8,b>(op : (a1,a2,a3,a4,a5,a6,a7,a8) -> e b) : clause1<(a1,a2,a3,a4,a5,a6,a7,a8),b,h,e,r>
+  clause-tail1( fn((x1,x2,x3,x4,x5,x6,x7,x8)){ op(x1,x2,x3,x4,x5,x6,x7,x8) } )
+
+pub fun clause-tail-noop8<e,r,h,a1,a2,a3,a4,a5,a6,a7,a8,b>(op : (a1,a2,a3,a4,a5,a6,a7,a8) -> e b) : clause1<(a1,a2,a3,a4,a5,a6,a7,a8),b,h,e,r>
+  clause-tail-noop1( fn((x1,x2,x3,x4,x5,x6,x7,x8)){ op(x1,x2,x3,x4,x5,x6,x7,x8) } )
+
+pub fun clause-never8( op : (a1,a2,a3,a4,a5,a6,a7,a8) -> e r ) : clause1<(a1,a2,a3,a4,a5,a6,a7,a8),b,h,e,r>
+  clause-never1(fn((x1,x2,x3,x4,x5,x6,x7,x8)){ op(x1,x2,x3,x4,x5,x6,x7,x8) } )
+
+pub fun @perform8( ev : ev<h>, op : (forall<e1,r> h<e1,r> -> clause1<(a1,a2,a3,a4,a5,a6,a7,a8),b,h,e1,r>), x1 : a1, x2 : a2, x3 : a3, x4 : a4, x5 : a5, x6 : a6, x7 : a7, x8 : a8 ) : e b
+  xperform1(ev,op,(x1,x2,x3,x4,x5,x6,x7,x8))
+
+fun under8( ev : ev<h>, op : (a1,a2,a3,a4,a5,a6,a7,a8) -> e b, x1 : a1, x2 : a2, x3 : a3, x4 : a4, x5 : a5, x6 : a6, x7 : a7, x8 : a8 ) : e b
+  val w0 = evv-swap-with(ev)
+  val z = op(x1,x2,x3,x4,x5,x6,x7,x8)
+  evv-set(w0)
+  if yielding() return yield-cont( fn(cont,res) under1(ev,cont,res) )
+  z
+
+
+pub fun clause-control9( op : (x1:a1, x2:a2, x3:a3, x4:a4, x5:a5, x6:a6, x7:a7, x8:a8, x9:a9, k: b -> e r) -> e r ) : clause1<(a1,a2,a3,a4,a5,a6,a7,a8,a9),b,h,e,r>
+  clause-control1( fn((x1,x2,x3,x4,x5,x6,x7,x8,x9),k){ op(x1,x2,x3,x4,x5,x6,x7,x8,x9,k) } )
+
+pub fun clause-tail9<e,r,h,a1,a2,a3,a4,a5,a6,a7,a8,a9,b>(op : (a1,a2,a3,a4,a5,a6,a7,a8,a9) -> e b) : clause1<(a1,a2,a3,a4,a5,a6,a7,a8,a9),b,h,e,r>
+  clause-tail1( fn((x1,x2,x3,x4,x5,x6,x7,x8,x9)){ op(x1,x2,x3,x4,x5,x6,x7,x8,x9) } )
+
+pub fun clause-tail-noop9<e,r,h,a1,a2,a3,a4,a5,a6,a7,a8,a9,b>(op : (a1,a2,a3,a4,a5,a6,a7,a8,a9) -> e b) : clause1<(a1,a2,a3,a4,a5,a6,a7,a8,a9),b,h,e,r>
+  clause-tail-noop1( fn((x1,x2,x3,x4,x5,x6,x7,x8,x9)){ op(x1,x2,x3,x4,x5,x6,x7,x8,x9) } )
+
+pub fun clause-never9( op : (a1,a2,a3,a4,a5,a6,a7,a8,a9) -> e r ) : clause1<(a1,a2,a3,a4,a5,a6,a7,a8,a9),b,h,e,r>
+  clause-never1(fn((x1,x2,x3,x4,x5,x6,x7,x8,x9)){ op(x1,x2,x3,x4,x5,x6,x7,x8,x9) } )
+
+pub fun @perform9( ev : ev<h>, op : (forall<e1,r> h<e1,r> -> clause1<(a1,a2,a3,a4,a5,a6,a7,a8,a9),b,h,e1,r>), x1 : a1, x2 : a2, x3 : a3, x4 : a4, x5 : a5, x6 : a6, x7 : a7, x8 : a8, x9 : a9 ) : e b
+  xperform1(ev,op,(x1,x2,x3,x4,x5,x6,x7,x8,x9))
+
+fun under9( ev : ev<h>, op : (a1,a2,a3,a4,a5,a6,a7,a8,a9) -> e b, x1 : a1, x2 : a2, x3 : a3, x4 : a4, x5 : a5, x6 : a6, x7 : a7, x8 : a8, x9 : a9 ) : e b
+  val w0 = evv-swap-with(ev)
+  val z = op(x1,x2,x3,x4,x5,x6,x7,x8,x9)
+  evv-set(w0)
+  if yielding() return yield-cont( fn(cont,res) under1(ev,cont,res) )
+  z
+
+
 // -------------------------------------------
 // Open
 // -------------------------------------------
